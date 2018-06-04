@@ -132,7 +132,7 @@ export default {
                             depart_desc: '',
                         }
                     }else{
-                        this.formValidate = {
+                        that.formValidate = {
                             depart_id: '',
                             depart_name: '',
                             depart_master: '',
@@ -140,8 +140,6 @@ export default {
                         }
                         that.$Message.success('修改成功')
                     }
-                    // console.log(response)
-                    // that.data6 = data.res
                 })
             },
             cancel(){

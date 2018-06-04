@@ -11,7 +11,7 @@
         </FormItem>
         <FormItem label="工资/月" prop="money">
             <!-- <Input v-model="formValidate.money" type="number" style="width:200px"></Input> -->
-            <InputNumber :max="10" :min="1" v-model="formValidate.money"></InputNumber>
+            <InputNumber :max="10000" :min="1" v-model="formValidate.money"></InputNumber>
         </FormItem>
     </Form>
     </Modal>
@@ -124,7 +124,7 @@ export default {
                         }
                         return
                     }else{
-                        this.formValidate = {
+                        that.formValidate = {
                             id: '',
                             name: '',
                             money: 0,

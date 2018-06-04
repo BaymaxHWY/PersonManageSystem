@@ -6,17 +6,20 @@
         @on-ok="ok"
         @on-cancel="cancel">
     <Form ref="formValidate" :model="formValidate" :label-width="80">
-        <FormItem label="姓名" prop="name">
-            <Input v-model="formValidate.name" style="width:300px"></Input>
+        <FormItem label="选择员工" prop="name">
+            <!-- <Input v-model="formValidate.name" style="width:300px"></Input> -->
+            <Select v-model="formValidate.name" size="large" style="width:100px">
+                <Option v-for="item in staffList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
         </FormItem>
         <FormItem label="奖惩类型" prop="type">
             <Select v-model="formValidate.type" size="large" style="width:100px">
                 <Option v-for="item in typeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
             </Select>
         </FormItem>
-        <FormItem label="金额" prop="money">
+        <FormItem label="金额/元" prop="money">
             <!-- <Input v-model="formValidate.money" type="number" style="width:200px"></Input> -->
-            <InputNumber :max="10" :min="1" v-model="formValidate.money"></InputNumber>
+            <InputNumber :max="100000" :min="1" v-model="formValidate.money"></InputNumber>
         </FormItem>
     </Form>
     </Modal>
@@ -51,6 +54,7 @@ export default {
                     label: '奖励'
                 },
             ],
+            staffList:[],
             columns7: [
                 {
                     title: '姓名',
@@ -61,7 +65,7 @@ export default {
                     key: 'type'
                 },
                 {
-                    title: '金额/月',
+                    title: '金额/元',
                     key: 'money'
                 },
                 {
@@ -145,7 +149,7 @@ export default {
                         }
                         return
                     }else{
-                        this.formValidate = {
+                        that.formValidate = {
                             id: '',
                             name: '',
                             type:'',
@@ -172,6 +176,16 @@ export default {
         res.then(function(response){
             let {data, status} = response
             that.data6 = data.res
+        })
+        let staffRes = api.get('/api/staff')
+        staffRes.then(function(response){
+            let {data, status} = response
+            data.res.forEach(item => {
+                that.staffList.push({
+                    value: item.name,
+                    label: item.name
+                })
+            });
         })
     }
 }

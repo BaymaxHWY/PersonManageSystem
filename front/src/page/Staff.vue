@@ -171,7 +171,7 @@ export default {
                     if(item.position === this.formValidate.position){
                         this.formValidate.money = item.wage
                     }
-                });
+                })
                 let res = api.post('/api/staffUpsert', this.formValidate)
                 let that = this
                 res.then(function(response){
@@ -189,7 +189,7 @@ export default {
                         }
                         return
                     }else{
-                        this.formValidate = {
+                        that.formValidate = {
                             staff_id: '',
                             name: '',
                             depart:'',

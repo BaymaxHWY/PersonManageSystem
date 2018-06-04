@@ -17,8 +17,8 @@
             </Header>
             <Layout>
                 <Sider hide-trigger :style="{background: '#fff'}">
-                    <Menu theme="light" width="auto" :open-names="['1', '2', '3']" :active-name="activeName">
-                        <MenuItem name="activeName" @click.native="pageTo('home')"><Icon type="ios-home-outline"></Icon>&nbsp;&nbsp;首页</MenuItem>
+                    <Menu theme="light" width="auto" :open-names="['1', '2']" :active-name="activeName">
+                        <MenuItem name="home" @click.native="pageTo('home')"><Icon type="ios-home-outline"></Icon>&nbsp;&nbsp;首页</MenuItem>
                         <Submenu name="1">
                             <template slot="title">
                                 <Icon type="ios-navigate"></Icon>
@@ -36,14 +36,6 @@
                             <MenuItem name="train" @click.native="pageTo('train')">培训管理</MenuItem>
                             <MenuItem name="rewardPunish" @click.native="pageTo('rewardPunish')">奖惩管理</MenuItem>
                             <MenuItem name="wage" @click.native="pageTo('wage')">薪资管理</MenuItem>
-                        </Submenu>
-                        <Submenu name="3">
-                            <template slot="title">
-                                <Icon type="ios-analytics"></Icon>
-                                设置
-                            </template>
-                            <MenuItem name="3-1">系统管理</MenuItem>
-                            <!-- <MenuItem name="3-2">个人信息</MenuItem> -->
                         </Submenu>
                     </Menu>
                 </Sider>

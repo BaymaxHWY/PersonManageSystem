@@ -13,7 +13,7 @@ class Recruit {
         let res = await staff.upsert(data)
         let res1 = await recruit.findOne({
             where: {
-                recruit_id: data.id
+                name: data.name
             }
         })
         res1.destroy()

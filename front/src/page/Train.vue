@@ -148,7 +148,7 @@ export default {
                         }
                         return
                     }else{
-                        this.formValidate = {
+                        that.formValidate = {
                             id: '',
                             train_name: '',
                             train_place:'',

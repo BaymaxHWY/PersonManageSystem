@@ -13,13 +13,19 @@
             <Input v-model="formValidate.intent_depart"></Input>
         </FormItem>
         <FormItem label="意向职位" prop="position">
-            <Input v-model="formValidate.intent_position"></Input>
+            <Select v-model="formValidate.intent_position" size="large" style="width:100px">
+                <Option v-for="item in typeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
         </FormItem>
         <FormItem label="电话号码" prop="tel">
-            <Input v-model="formValidate.tel"></Input>
+            <!-- <Input v-model="formValidate.tel"></Input> -->
+            <!-- <InputNumber :max="99999999999" :min="1" v-model="formValidate.tel"></InputNumber> -->
+            <input type="number" v-model="formValidate.tel">
         </FormItem>
         <FormItem label="QQ" prop="qq">
-            <Input v-model="formValidate.qq"></Input>
+            <!-- <Input v-model="formValidate.qq"></Input> -->
+            <input type="number" v-model="formValidate.qq">
+            <!-- <InputNumber :max="999999999999" :min="1" v-model="formValidate.q"></InputNumber> -->
         </FormItem>
     </Form>
     </Modal>
@@ -44,11 +50,29 @@ import api from '../api/index'
 export default {
     data () {
         return {
+            typeList: [
+                {
+                    value: '总经理',
+                    label: '总经理'
+                },
+                {
+                    value: '副经理',
+                    label: '副经理'
+                },
+                {
+                    value: '主管',
+                    label: '主管'
+                },
+                {
+                    value: '组长',
+                    label: '组长'
+                },
+                {
+                    value: '普通员工',
+                    label: '普通员工'
+                },
+            ],
             columns7: [
-                // {
-                //     title: '编号',
-                //     key: 'recruit_id',
-                // },
                 {
                     title: '姓名',
                     key: 'name',
@@ -107,13 +131,35 @@ export default {
             ],
             data6: [],
             modal1: false,
+            wages: [
+                {
+                    position: '总经理',
+                    wage: 10000
+                },
+                {
+                    position: '副经理',
+                    wage: 8000
+                },
+                {
+                    position: '主管',
+                    wage: 5000
+                },
+                {
+                    position: '组长',
+                    wage: 3000
+                },
+                {
+                    position: '普通员工',
+                    wage: 2000
+                },
+            ],
             formValidate: {
                     recruit_id: '',
                     name: '',
                     intent_depart:'',
                     intent_position: '',
-                    tel:'',
-                    qq:''
+                    tel:0,
+                    qq:0
                 },
         }
     },
@@ -124,11 +170,17 @@ export default {
                     name: '',
                     position: '',
                     depart: '',
+                    money:0,
                 }
                 _data.id = this.data6[index].recruit_id
                 _data.name = this.data6[index].name
                 _data.position = this.data6[index].intent_position
                 _data.depart = this.data6[index].intent_depart
+                this.wages.forEach(item => {
+                    if(item.position === _data.position){
+                        _data.money = item.wage
+                    }
+                })
                 let res = api.post('/api/recruitEnroll', _data)
                 let that = this
                 res.then(function(response){
@@ -165,17 +217,17 @@ export default {
                             name: '',
                             intent_depart:'',
                             intent_position: '',
-                            tel:'',
-                            qq:''
+                            tel:0,
+                            qq:0
                         }
                     }else{
-                        this.formValidate = {
+                        that.formValidate = {
                             recruit_id: '',
                             name: '',
                             intent_depart:'',
                             intent_position: '',
-                            tel:'',
-                            qq:''
+                            tel:0,
+                            qq:0
                         }
                         that.$Message.success('修改成功')
                     }
@@ -187,8 +239,8 @@ export default {
                     name: '',
                     intent_depart:'',
                     intent_position: '',
-                    tel:'',
-                    qq:''
+                    tel:0,
+                    // qq:0
                 }
             }
         },
