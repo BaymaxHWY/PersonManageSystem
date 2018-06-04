@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize')
 const sequelize = require('./index')
 
-module.exports = sequelize.define('staff', {
-    staff_id: {
+module.exports = sequelize.define('reward_punish', {
+    id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -11,17 +11,12 @@ module.exports = sequelize.define('staff', {
     name: {
         type: Sequelize.STRING,
         allowNull: false,
-        comment: '员工姓名'
+        comment: '姓名'
     },
-    position: {
+    type: {
         type: Sequelize.STRING,
         allowNull: false,
-        comment: '员工职位'
-    },
-    depart: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        comment: '所属部门'
+        comment: '类型'
     },
     money: {
         type: Sequelize.INTEGER,

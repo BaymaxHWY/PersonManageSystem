@@ -1,26 +1,26 @@
-const staff = require('../model/staff')
+const train = require('../model/train')
 
-class Staff{
-    async getAll(ctx){
-        let res = await staff.findAll()
+class Train {
+    async getAll(ctx) {
+        let res = await train.findAll()
         ctx.body = {
             res
         }
     }
     async insertOrUpdate(ctx) {
         let data = ctx.request.body
-        let res = await staff.upsert(data)
+        let res = await train.upsert(data)
         ctx.body = { res }
     }
     async delete(ctx) {
         let data = ctx.request.body
-        let res = await staff.findOne({
+        let res = await train.findOne({
             where: {
-                staff_id: data.staff_id
+                id: data.id
             }
         })
         ctx.body = res.destroy()
     }
 }
 
-module.exports = new Staff()
+module.exports = new Train()

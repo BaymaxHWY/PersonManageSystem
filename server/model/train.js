@@ -1,31 +1,31 @@
 const Sequelize = require('sequelize')
 const sequelize = require('./index')
 
-module.exports = sequelize.define('staff', {
-    staff_id: {
+module.exports = sequelize.define('train', {
+    id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         comment: '自增主键'
     },
-    name: {
+    train_name: {
         type: Sequelize.STRING,
         allowNull: false,
-        comment: '员工姓名'
+        comment: '训练项目'
     },
-    position: {
+    train_place: {
         type: Sequelize.STRING,
         allowNull: false,
-        comment: '员工职位'
+        comment: '训练地点'
     },
-    depart: {
+    train_num: {
         type: Sequelize.STRING,
         allowNull: false,
-        comment: '所属部门'
+        comment: '受训人数'
     },
-    money: {
-        type: Sequelize.INTEGER,
+    train_dates: {
+        type: Sequelize.STRING,
         allowNull: false,
-        comment: '金额'
+        comment: '训练时间'
     }
 }, { timestamps: false, freezeTableName: true })

@@ -9,13 +9,11 @@ class Depart {
     }
     async insertOrUpdate(ctx){
         let data = ctx.request.body
-        // console.log(data)
         let res = await depart.upsert(data)
         ctx.body = {res}
     }
     async delete(ctx){
         let data = ctx.request.body
-        // console.log(data)
         let res = await depart.findOne({
             where:{
                 depart_id: data.depart_id

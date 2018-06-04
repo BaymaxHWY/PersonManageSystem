@@ -10,13 +10,22 @@ class Recruit {
     }
     async enroll(ctx) {
         let data = ctx.request.body
-        // console.log(data)
         let res = await staff.upsert(data)
+        let res1 = await recruit.findOne({
+            where: {
+                recruit_id: data.id
+            }
+        })
+        res1.destroy()
+        ctx.body = { res }
+    }
+    async insertOrUpdate(ctx) {
+        let data = ctx.request.body
+        let res = await recruit.upsert(data)
         ctx.body = { res }
     }
     async delete(ctx) {
         let data = ctx.request.body
-        // console.log(data)
         let res = await recruit.findOne({
             where: {
                 recruit_id: data.recruit_id

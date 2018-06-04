@@ -33,9 +33,9 @@
                                 <Icon type="ios-keypad"></Icon>
                                 工作管理
                             </template>
-                            <MenuItem name="2-1">培训管理</MenuItem>
-                            <MenuItem name="2-2">奖惩管理</MenuItem>
-                            <MenuItem name="2-2">薪资管理</MenuItem>
+                            <MenuItem name="train" @click.native="pageTo('train')">培训管理</MenuItem>
+                            <MenuItem name="rewardPunish" @click.native="pageTo('rewardPunish')">奖惩管理</MenuItem>
+                            <MenuItem name="wage" @click.native="pageTo('wage')">薪资管理</MenuItem>
                         </Submenu>
                         <Submenu name="3">
                             <template slot="title">
@@ -43,7 +43,7 @@
                                 设置
                             </template>
                             <MenuItem name="3-1">系统管理</MenuItem>
-                            <MenuItem name="3-2">个人信息</MenuItem>
+                            <!-- <MenuItem name="3-2">个人信息</MenuItem> -->
                         </Submenu>
                     </Menu>
                 </Sider>

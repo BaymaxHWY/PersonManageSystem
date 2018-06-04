@@ -98,14 +98,6 @@ export default {
         }
     },
     methods: {
-            update(){
-                let res = api.get('/api/depart')
-                let that = this
-                res.then(function(response){
-                    let {data, status} = response
-                    that.data6 = data.res
-                })
-            },
             show (index) {
                 this.modal1 = true
                 console.log(index, this.data6[index].depart_name)
@@ -133,7 +125,19 @@ export default {
                     if(data.res){
                         that.$Message.success('添加成功')
                         that.data6.push(that.formValidate)
+                        that.formValidate = {
+                            depart_id: '',
+                            depart_name: '',
+                            depart_master: '',
+                            depart_desc: '',
+                        }
                     }else{
+                        this.formValidate = {
+                            depart_id: '',
+                            depart_name: '',
+                            depart_master: '',
+                            depart_desc: '',
+                        }
                         that.$Message.success('修改成功')
                     }
                     // console.log(response)
@@ -141,7 +145,12 @@ export default {
                 })
             },
             cancel(){
-
+                this.formValidate = {
+                    depart_id: '',
+                    depart_name: '',
+                    depart_master: '',
+                    depart_desc: '',
+                }
             }
         },
     created () {

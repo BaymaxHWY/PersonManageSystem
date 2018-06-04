@@ -3,6 +3,8 @@ const depart = require('./controllers/depart')
 const login = require('./controllers/login')
 const staff = require('./controllers/staff')
 const recruit = require('./controllers/recruit')
+const train = require('./controllers/train')
+const rewardPunish = require('./controllers/rewardPunish')
 
 router.post('/api/login', login.checkLogin)
 //部门管理
@@ -16,7 +18,16 @@ router.post('/api/staffDelete', staff.delete)
 //招聘管理
 router.get('/api/recruit', recruit.getAll)
 router.post('/api/recruitEnroll', recruit.enroll)
+router.post('/api/recruitUpsert', recruit.insertOrUpdate)
 router.post('/api/recruitDelete', recruit.delete)
+//训练管理
+router.get('/api/train', train.getAll)
+router.post('/api/trainUpsert', train.insertOrUpdate)
+router.post('/api/trainDelete', train.delete)
+//奖惩管理
+router.get('/api/rewardPunish', rewardPunish.getAll)
+router.post('/api/rewardPunishUpsert', rewardPunish.insertOrUpdate)
+router.post('/api/rewardPunishDelete', rewardPunish.delete)
 
 router.all('/api/*', async function (ctx) {
     ctx.throw(404, '未找到相关 API')
