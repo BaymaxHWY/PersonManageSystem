@@ -15,9 +15,6 @@ class Api{
         let res = await axios.post(path, data)
         return res
     }
-    async delete(path, params) {
-
-    }
 }
 
 export default new Api()

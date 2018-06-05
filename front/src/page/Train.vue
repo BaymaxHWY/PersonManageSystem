@@ -1,7 +1,7 @@
 <template>
     <div class="depart"> 
         <Modal
-        v-model="modal1"
+        v-model="modal"
         title="编辑信息"
         @on-ok="ok"
         @on-cancel="cancel">
@@ -13,10 +13,10 @@
             <Input v-model="formValidate.train_place"></Input>
         </FormItem>
         <FormItem label="培训人数" prop="num">
-            <Input v-model="formValidate.train_num"></Input>
+            <InputNumber :max="100" :min="1" v-model="formValidate.train_num"></InputNumber>
         </FormItem>
         <FormItem label="培训时间" prop="dates">
-            <DatePicker type="date" placement="bottom-end" format="yyyy-MM-dd" placeholder="选择时间" style="width: 200px" v-model="formValidate.train_dates"></DatePicker>
+            <DatePicker @on-change="formValidate.train_dates=$event" type="date" placement="bottom-end" format="yyyy-MM-dd" placeholder="选择时间" style="width: 200px" v-model="formValidate.train_dates"></DatePicker>
         </FormItem>
     </Form>
     </Modal>
@@ -24,12 +24,11 @@
             <Breadcrumb :style="{margin: '24px 0'}">
                 <BreadcrumbItem>工作管理</BreadcrumbItem>
                 <BreadcrumbItem>培训管理</BreadcrumbItem>
-                <!-- <BreadcrumbItem>Layout</BreadcrumbItem> -->
             </Breadcrumb>
-            <Button type="ghost" icon="plus" class="addBtn" @click="modal1=true">添加培训</Button>
+            <Button type="ghost" icon="plus" class="addBtn" @click="addOne">添加培训</Button>
             <Content :style="{padding: '24px', minHeight: '280px', background: '#fff', margin:'10px',width:'90%'}">
                 <template>
-                    <Table border :columns="columns7" :data="data6"></Table>
+                    <Table height="420" border :columns="columns" :data="data"></Table>
                 </template>
             </Content>
         </Layout>
@@ -38,10 +37,12 @@
 
 <script>
 import api from '../api/index'
+import utility from "../utility/index"
+import Cookies from 'js-cookie'
 export default {
     data () {
         return {
-            columns7: [
+            columns: [
                 {
                     title: '培训项目',
                     key: 'train_name',
@@ -94,81 +95,62 @@ export default {
                     }
                 }
             ],
-            data6: [],
-            modal1: false,
             formValidate: {
                     id: '',
                     train_name: '',
                     train_place:'',
-                    train_num: '',
+                    train_num: 0,
                     train_dates:'',
-                },
+                    index:''
+            },
+            data: [],
+            modal: false,
         }
     },
-    computed: {
-        
-    },
     methods: {
+            addOne (){
+                utility.initObject(this.formValidate)
+                this.modal = true
+            },
             show (index) {
-                this.modal1 = true
-                this.formValidate = this.data6[index]
+                this.modal = true
+                this.formValidate = Object.assign({}, this.data[index])
+                this.formValidate.index = index
             },
             remove (index) {
-                let res = api.post('/api/trainDelete', this.data6[index])
+                this.data[index].username = Cookies.get('username')
+                let res = api.post('/api/trainDelete', this.data[index])
                 let that = this
                 res.then(function(response){
-                    that.data6.splice(index, 1)
+                    that.data.splice(index, 1)
                     that.$Message.success('删除成功')
                 })
             },
             ok () {
-                // this.$Message.info('Clicked ok');
                 if(this.formValidate.train_name === ''||this.formValidate.train_place=== ''
                 ||this.formValidate.train_num=== ''||this.formValidate.train_dates=== '' ){
                     this.$Message.error('填写不完整')
                     return
                 }
-                // console.log(index)
-                // this.formValidate.train_dates = this.formValidate.train_dates.substring(0, 10)
-                // console.log(this.formValidate.train_dates.getDate())
+                this.formValidate.username = Cookies.get('username')
                 let res = api.post('/api/trainUpsert', this.formValidate)
                 let that = this
                 res.then(function(response){
                     let {data, status} = response
-                    // console.log(data)
                     if(data.res){
                         that.$Message.success('添加成功')
-                        that.data6.push(that.formValidate)
-                        that.formValidate = {
-                            id: '',
-                            train_name: '',
-                            train_place:'',
-                            train_num: '',
-                            train_dates:'',        
-                        }
+                        let t = Object.assign({}, that.formValidate)
+                        that.data.push(t)
                         return
                     }else{
-                        that.formValidate = {
-                            id: '',
-                            train_name: '',
-                            train_place:'',
-                            train_num: '',
-                            train_dates:'',        
-                        }
                         that.$Message.success('修改成功')
+                        utility.assginObject(that.data[that.formValidate.index], that.formValidate)
                         return
                     }
                     that.$Message.error('操作失败')
                 })
             },
             cancel(){
-                this.formValidate = {
-                            id: '',
-                            train_name: '',
-                            train_place:'',
-                            train_num: '',
-                            train_dates:'',        
-                        }
             }
         },
     created () {
@@ -176,7 +158,7 @@ export default {
         let that = this
         res.then(function(response){
             let {data, status} = response
-            that.data6 = data.res
+            that.data = data.res
         })
     }
 }

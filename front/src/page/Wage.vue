@@ -1,7 +1,7 @@
 <template>
     <div class="depart"> 
         <Modal
-        v-model="modal1"
+        v-model="modal"
         title="编辑信息"
         @on-ok="ok"
         @on-cancel="cancel">
@@ -10,7 +10,6 @@
             <Input v-model="formValidate.name" style="width:300px"></Input>
         </FormItem>
         <FormItem label="工资/月" prop="money">
-            <!-- <Input v-model="formValidate.money" type="number" style="width:200px"></Input> -->
             <InputNumber :max="10000" :min="1" v-model="formValidate.money"></InputNumber>
         </FormItem>
     </Form>
@@ -19,12 +18,11 @@
             <Breadcrumb :style="{margin: '24px 0'}">
                 <BreadcrumbItem>工作管理</BreadcrumbItem>
                 <BreadcrumbItem>薪资管理</BreadcrumbItem>
-                <!-- <BreadcrumbItem>Layout</BreadcrumbItem> -->
             </Breadcrumb>
-            <Button type="ghost" icon="plus" class="addBtn" @click="modal1=true">添加</Button>
+            <!-- <Button type="ghost" icon="plus" class="addBtn" @click="addOne">添加</Button> -->
             <Content :style="{padding: '24px', minHeight: '280px', background: '#fff', margin:'10px',width:'90%'}">
                 <template>
-                    <Table border :columns="columns7" :data="data6"></Table>
+                    <Table height="420" border :columns="columns" :data="data"></Table>
                 </template>
             </Content>
         </Layout>
@@ -33,10 +31,12 @@
 
 <script>
 import api from '../api/index'
+import utility from "../utility/index"
+import Cookies from 'js-cookie'
 export default {
     data () {
         return {
-            columns7: [
+            columns: [
                 {
                     title: '姓名',
                     key: 'name',
@@ -48,7 +48,7 @@ export default {
                 {
                     title: '操作',
                     key: 'action',
-                    width: 150,
+                    width: 100,
                     align: 'center',
                     render: (h, params) => {
                         return h('div', [
@@ -65,82 +65,55 @@ export default {
                                         this.show(params.index)
                                     }
                                 }
-                            }, '编辑'),
-                            h('Button', {
-                                props: {
-                                    type: 'error',
-                                    size: 'small'
-                                },
-                                on: {
-                                    click: () => {
-                                        this.remove(params.index)
-                                    }
-                                }
-                            }, '删除')
+                            }, '编辑')
                         ]);
                     }
                 }
             ],
-            data6: [],
-            modal1: false,
             formValidate: {
                     staff_id: '',
                     name: '',
                     money: 0,
-                },
+                    index:''
+            },
+            data: [],
+            modal: false,
         }
     },
     methods: {
-            show (index) {
-                this.modal1 = true
-                this.formValidate = this.data6[index]
+            addOne (){
+                utility.initObject(this.formValidate)
+                this.modal = true
             },
-            remove (index) {
-                let res = api.post('/api/staffDelete', this.data6[index])
-                let that = this
-                res.then(function(response){
-                    that.data6.splice(index, 1)
-                    that.$Message.success('删除成功')
-                })
+            show (index) {
+                this.modal = true
+                this.formValidate = Object.assign({}, this.data[index])
+                this.formValidate.index = index
             },
             ok () {
-                // this.$Message.info('Clicked ok');
-                if(this.formValidate.name === ''||this.formValidate.position=== '' ){
+                if(this.formValidate.name === ''||this.formValidate.money=== 0 ){
                     this.$Message.error('填写不完整')
                     return
                 }
+                this.formValidate.username = Cookies.get('username')
                 let res = api.post('/api/staffUpsert', this.formValidate)
                 let that = this
                 res.then(function(response){
                     let {data, status} = response
-                    // console.log(data)
                     if(data.res){
                         that.$Message.success('添加成功')
-                        that.data6.push(that.formValidate)
-                        that.formValidate = {
-                            id: '',
-                            name: '',
-                            money: 0,
-                        }
+                        let t = Object.assign({}, that.formValidate)
+                        that.data.push(t)
                         return
                     }else{
-                        that.formValidate = {
-                            id: '',
-                            name: '',
-                            money: 0,
-                        }
                         that.$Message.success('修改成功')
+                        utility.assginObject(that.data[that.formValidate.index], that.formValidate)
                         return
                     }
                     that.$Message.error('操作失败')
                 })
             },
             cancel(){
-               this.formValidate = {
-                    id: '',
-                    name: '',
-                    money: 0,
-                }
             }
         },
     created () {
@@ -148,7 +121,7 @@ export default {
         let that = this
         res.then(function(response){
             let {data, status} = response
-            that.data6 = data.res
+            that.data = data.res
         })
     }
 }

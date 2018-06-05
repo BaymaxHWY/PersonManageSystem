@@ -54,14 +54,12 @@ import Cookies from 'js-cookie'
             }
         },
         created () {
-            // console.log(Cookies.get('username'))
             this.username = Cookies.get('username') || ''
             if(this.username === ''){
                 this.$router.push({
                     name: 'login'
                 })
             }
-            // console.log(this.$route.name)
             this.activeName = this.$route.name
         },
         methods: {

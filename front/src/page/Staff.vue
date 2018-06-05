@@ -1,7 +1,7 @@
 <template>
     <div class="depart"> 
         <Modal
-        v-model="modal1"
+        v-model="modal"
         title="编辑信息"
         @on-ok="ok"
         @on-cancel="cancel">
@@ -10,7 +10,9 @@
             <Input v-model="formValidate.name"></Input>
         </FormItem>
         <FormItem label="员工部门" prop="depart">
-            <Input v-model="formValidate.depart"></Input>
+            <Select v-model="formValidate.depart" size="large" style="width:100px">
+                <Option v-for="item in departs" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
         </FormItem>
         <FormItem label="员工职位" prop="position">
             <Select v-model="formValidate.position" size="large" style="width:100px">
@@ -23,12 +25,11 @@
             <Breadcrumb :style="{margin: '24px 0'}">
                 <BreadcrumbItem>人事管理</BreadcrumbItem>
                 <BreadcrumbItem>员工管理</BreadcrumbItem>
-                <!-- <BreadcrumbItem>Layout</BreadcrumbItem> -->
             </Breadcrumb>
-            <Button type="ghost" icon="plus" class="addBtn" @click="modal1=true">添加员工</Button>
+            <Button type="ghost" icon="plus" class="addBtn" @click="addOne">添加员工</Button>
             <Content :style="{padding: '24px', minHeight: '280px', background: '#fff', margin:'10px',width:'90%'}">
                 <template>
-                    <Table border :columns="columns7" :data="data6"></Table>
+                    <Table height="420" border :columns="columns" :data="data"></Table>
                 </template>
             </Content>
         </Layout>
@@ -37,6 +38,8 @@
 
 <script>
 import api from '../api/index'
+import utility from "../utility/index"
+import Cookies from 'js-cookie'
 export default {
     data () {
         return {
@@ -62,15 +65,33 @@ export default {
                     label: '普通员工'
                 },
             ],
-            columns7: [
+            wages: [
+                {
+                    position: '总经理',
+                    wage: 10000
+                },
+                {
+                    position: '副经理',
+                    wage: 8000
+                },
+                {
+                    position: '主管',
+                    wage: 5000
+                },
+                {
+                    position: '组长',
+                    wage: 3000
+                },
+                {
+                    position: '普通员工',
+                    wage: 2000
+                },
+            ],
+            columns: [
                 {
                     title: '姓名',
                     key: 'name',
                 },
-                    // {
-                    //     title: '员工编号',
-                    //     key: 'staff_id'
-                    // },
                 {
                     title: '所属部门',
                     key: 'depart'
@@ -115,54 +136,39 @@ export default {
                     }
                 }
             ],
-            data6: [],
-            modal1: false,
             formValidate: {
                     staff_id: '',
                     name: '',
                     depart:'',
                     position: '',
                     money:0,
-                },
-            wages: [
-                {
-                    position: '总经理',
-                    wage: 10000
-                },
-                {
-                    position: '副经理',
-                    wage: 8000
-                },
-                {
-                    position: '主管',
-                    wage: 5000
-                },
-                {
-                    position: '组长',
-                    wage: 3000
-                },
-                {
-                    position: '普通员工',
-                    wage: 2000
-                },
-            ]
+                    index:''
+            },
+            data: [],
+            departs:[],
+            modal: false,
         }
     },
     methods: {
+            addOne (){
+                utility.initObject(this.formValidate)
+                this.modal = true
+            },
             show (index) {
-                this.modal1 = true
-                this.formValidate = this.data6[index]
+                this.modal = true
+                this.formValidate = Object.assign({}, this.data[index])
+                this.formValidate.index = index
             },
             remove (index) {
-                let res = api.post('/api/staffDelete', this.data6[index])
+                this.data[index].username = Cookies.get('username')
+                let res = api.post('/api/staffDelete', this.data[index])
                 let that = this
                 res.then(function(response){
-                    that.data6.splice(index, 1)
+                    that.data.splice(index, 1)
                     that.$Message.success('删除成功')
                 })
             },
             ok () {
-                // this.$Message.info('Clicked ok');
                 if(this.formValidate.name === ''||this.formValidate.position=== ''||this.formValidate.depart=== '' ){
                     this.$Message.error('填写不完整')
                     return
@@ -172,30 +178,18 @@ export default {
                         this.formValidate.money = item.wage
                     }
                 })
+                this.formValidate.username = Cookies.get('username')
                 let res = api.post('/api/staffUpsert', this.formValidate)
                 let that = this
                 res.then(function(response){
                     let {data, status} = response
-                    // console.log(data)
                     if(data.res){
                         that.$Message.success('添加成功')
-                        that.data6.push(that.formValidate)
-                        that.formValidate = {
-                            staff_id: '',
-                            name: '',
-                            depart:'',
-                            position: '',
-                            money:0,
-                        }
+                        let t = Object.assign({}, that.formValidate)
+                        that.data.push(t)
                         return
                     }else{
-                        that.formValidate = {
-                            staff_id: '',
-                            name: '',
-                            depart:'',
-                            position: '',
-                            money:0,
-                        }
+                        utility.assginObject(that.data[that.formValidate.index], that.formValidate)
                         that.$Message.success('修改成功')
                         return
                     }
@@ -203,21 +197,24 @@ export default {
                 })
             },
             cancel(){
-                this.formValidate = {
-                            staff_id: '',
-                            name: '',
-                            depart:'',
-                            position: '',
-                            money:0,
-                        }
             }
         },
     created () {
         let res = api.get('/api/staff')
+        let departRes = api.get('/api/depart')
         let that = this
         res.then(function(response){
             let {data, status} = response
-            that.data6 = data.res
+            that.data = data.res
+        })
+        departRes.then(function (response) {
+            let {data} = response
+            data.res.forEach(item => {
+                that.departs.push({
+                    value: item.depart_name,
+                    label: item.depart_name
+                })
+            });
         })
     }
 }

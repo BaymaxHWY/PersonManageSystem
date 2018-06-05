@@ -1,7 +1,7 @@
 <template>
     <div class="depart"> 
         <Modal
-        v-model="modal1"
+        v-model="modal"
         title="编辑招聘信息"
         @on-ok="ok"
         @on-cancel="cancel">
@@ -10,7 +10,9 @@
             <Input v-model="formValidate.name"></Input>
         </FormItem>
         <FormItem label="意向部门" prop="depart">
-            <Input v-model="formValidate.intent_depart"></Input>
+            <Select v-model="formValidate.intent_depart" size="large" style="width:100px">
+                <Option v-for="item in departs" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
         </FormItem>
         <FormItem label="意向职位" prop="position">
             <Select v-model="formValidate.intent_position" size="large" style="width:100px">
@@ -18,14 +20,10 @@
             </Select>
         </FormItem>
         <FormItem label="电话号码" prop="tel">
-            <!-- <Input v-model="formValidate.tel"></Input> -->
-            <!-- <InputNumber :max="99999999999" :min="1" v-model="formValidate.tel"></InputNumber> -->
             <input type="number" v-model="formValidate.tel">
         </FormItem>
         <FormItem label="QQ" prop="qq">
-            <!-- <Input v-model="formValidate.qq"></Input> -->
             <input type="number" v-model="formValidate.qq">
-            <!-- <InputNumber :max="999999999999" :min="1" v-model="formValidate.q"></InputNumber> -->
         </FormItem>
     </Form>
     </Modal>
@@ -33,12 +31,11 @@
             <Breadcrumb :style="{margin: '24px 0'}">
                 <BreadcrumbItem>人事管理</BreadcrumbItem>
                 <BreadcrumbItem>招聘管理</BreadcrumbItem>
-                <!-- <BreadcrumbItem>Layout</BreadcrumbItem> -->
             </Breadcrumb>
-            <Button type="ghost" icon="plus" class="addBtn" @click="modal1=true">添加招聘信息</Button>
+            <Button type="ghost" icon="plus" class="addBtn" @click="addOne">添加招聘信息</Button>
             <Content :style="{padding: '24px', minHeight: '280px', background: '#fff', margin:'10px',width:'90%'}">
                 <template>
-                    <Table border :columns="columns7" :data="data6"></Table>
+                    <Table height="420" border :columns="columns" :data="data"></Table>
                 </template>
             </Content>
         </Layout>
@@ -47,9 +44,12 @@
 
 <script>
 import api from '../api/index'
+import utility from "../utility/index"
+import Cookies from 'js-cookie'
 export default {
     data () {
         return {
+            modal: false,
             typeList: [
                 {
                     value: '总经理',
@@ -72,7 +72,7 @@ export default {
                     label: '普通员工'
                 },
             ],
-            columns7: [
+            columns: [
                 {
                     title: '姓名',
                     key: 'name',
@@ -129,8 +129,6 @@ export default {
                     }
                 }
             ],
-            data6: [],
-            modal1: false,
             wages: [
                 {
                     position: '总经理',
@@ -159,11 +157,18 @@ export default {
                     intent_depart:'',
                     intent_position: '',
                     tel:0,
-                    qq:0
-                },
+                    qq:0,
+                    index:''
+            },
+            data: [],
+            departs:[],
         }
     },
     methods: {
+            addOne (){
+                utility.initObject(this.formValidate)
+                this.modal = true
+            },
             show (index) {
                 let _data = {
                     id: '',
@@ -172,10 +177,10 @@ export default {
                     depart: '',
                     money:0,
                 }
-                _data.id = this.data6[index].recruit_id
-                _data.name = this.data6[index].name
-                _data.position = this.data6[index].intent_position
-                _data.depart = this.data6[index].intent_depart
+                _data.id = this.data[index].recruit_id
+                _data.name = this.data[index].name
+                _data.position = this.data[index].intent_position
+                _data.depart = this.data[index].intent_depart
                 this.wages.forEach(item => {
                     if(item.position === _data.position){
                         _data.money = item.wage
@@ -187,15 +192,16 @@ export default {
                     let {data, status} = response
                     if(data.res){
                         that.$Message.success('录用成功')
-                        that.data6.splice(index, 1)
+                        that.data.splice(index, 1)
                     }
                 })
             },
             remove (index) {
-                let res = api.post('/api/recruitDelete', this.data6[index])
+                this.data[index].username = Cookies.get('username')
+                let res = api.post('/api/recruitDelete', this.data[index])
                 let that = this
                 res.then(function(response){
-                    that.data6.splice(index, 1)
+                    that.data.splice(index, 1)
                     that.$Message.success('删除成功')
                 })
             },
@@ -205,51 +211,40 @@ export default {
                     this.$Message.error('填写不完整')
                     return
                 }
+                this.formValidate.username = Cookies.get('username')
                 let res = api.post('/api/recruitUpsert', this.formValidate)
                 let that = this
                 res.then(function(response){
                     let {data, status} = response
                     if(data.res){
                         that.$Message.success('添加成功')
-                        that.data6.push(that.formValidate)
-                        that.formValidate = {
-                            recruit_id: '',
-                            name: '',
-                            intent_depart:'',
-                            intent_position: '',
-                            tel:0,
-                            qq:0
-                        }
+                        let t = Object.assign({}, that.formValidate)
+                        // console.log(t)
+                        that.data.push(t)
                     }else{
-                        that.formValidate = {
-                            recruit_id: '',
-                            name: '',
-                            intent_depart:'',
-                            intent_position: '',
-                            tel:0,
-                            qq:0
-                        }
                         that.$Message.success('修改成功')
                     }
                 })
             },
             cancel(){
-                this.formValidate = {
-                    recruit_id: '',
-                    name: '',
-                    intent_depart:'',
-                    intent_position: '',
-                    tel:0,
-                    // qq:0
-                }
             }
         },
     created () {
         let res = api.get('/api/recruit')
+        let departRes = api.get('/api/depart')
         let that = this
         res.then(function(response){
             let {data, status} = response
-            that.data6 = data.res
+            that.data = data.res
+        })
+        departRes.then(function (response) {
+            let {data} = response
+            data.res.forEach(item => {
+                that.departs.push({
+                    value: item.depart_name,
+                    label: item.depart_name
+                })
+            });
         })
     }
 }

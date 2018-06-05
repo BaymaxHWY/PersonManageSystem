@@ -32,6 +32,10 @@
                     </Col>
                 </Row>
             </Content>
+            <template>
+                    <Table height="420" border :columns="columns" :data="data"></Table>
+                    <!-- <Page :total="100" show-total></Page> -->
+            </template>
         </Layout>
     </div>
 </template>
@@ -44,7 +48,50 @@ export default {
                 departs:[],
                 staffs:[],
                 rewardPunishs:[],
-                trains:[]
+                trains:[],
+                columns: [
+                    {
+                        type: 'index',
+                        width: 60,
+                        align: 'center'
+                    },
+                    {
+                        title: '日期',
+                        key: 'date'
+                    },
+                    {
+                        title: '执行人',
+                        key: 'user'
+                    },
+                    {
+                        title: '来源',
+                        key: 'ip'
+                    },
+                    {
+                        title: '描述',
+                        key: 'user_desc'
+                    },
+                    {
+                        title: '状态',
+                        key: 'action',
+                        width: 100,
+                        align: 'center',
+                        render: (h, params) => {
+                            return  h('div', {
+                                    style: {
+                                        marginRight: '5px',
+                                        backgroundColor: 'rgb(208, 232, 220)',
+                                        paddingTop: '5px',
+                                        paddingBottom: '5px',
+                                        color: '#19be6b',
+                                        borderRadius: '5px',
+                                        border: 'none'
+                                    }
+                                }, '完成');
+                        }
+                    }
+                ],
+                data: [], 
             }
         },
     methods: {
@@ -57,6 +104,12 @@ export default {
         let staffRes = api.get('/api/staff')
         let rewardPunishRes = api.get('/api/rewardPunish')
         let trainRes = api.get('/api/train')
+        let log = api.get('/api/log')
+
+        log.then(function (response) {
+            let {data} = response
+            that.data = data.res
+        })
         
         departRes.then(function (response) {
             let {data} = response

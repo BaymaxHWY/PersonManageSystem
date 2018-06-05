@@ -1,7 +1,7 @@
 <template>
     <div class="depart"> 
         <Modal
-        v-model="modal1"
+        v-model="modal"
         title="编辑部门"
         @on-ok="ok"
         @on-cancel="cancel">
@@ -9,7 +9,7 @@
         <FormItem label="部门" prop="name">
             <Input v-model="formValidate.depart_name"></Input>
         </FormItem>
-        <FormItem label="部门主管" prop="master">
+        <FormItem label="部门总监" prop="master">
             <Input v-model="formValidate.depart_master"></Input>
         </FormItem>
         <FormItem label="部门简介" prop="desc">
@@ -21,12 +21,11 @@
             <Breadcrumb :style="{margin: '24px 0'}">
                 <BreadcrumbItem>人事管理</BreadcrumbItem>
                 <BreadcrumbItem>部门管理</BreadcrumbItem>
-                <!-- <BreadcrumbItem>Layout</BreadcrumbItem> -->
             </Breadcrumb>
-            <Button type="ghost" icon="plus" class="addBtn" @click="modal1=true">增加部门</Button>
+            <Button type="ghost" icon="plus" class="addBtn" @click="addOne">增加部门</Button>
             <Content :style="{padding: '24px', minHeight: '280px', background: '#fff', margin:'10px',width:'90%'}">
                 <template>
-                    <Table border :columns="columns7" :data="data6"></Table>
+                    <Table height="420" border :columns="columns" :data="data"></Table>
                 </template>
             </Content>
         </Layout>
@@ -35,16 +34,18 @@
 
 <script>
 import api from '../api/index'
+import utility from "../utility/index"
+import Cookies from 'js-cookie'
 export default {
     data () {
         return {
-            columns7: [
+            columns: [
                 {
                     title: '部门',
                     key: 'depart_name',
                 },
                 {
-                    title: '部门主管',
+                    title: '部门总监',
                     key: 'depart_master'
                 },
                 {
@@ -87,79 +88,71 @@ export default {
                     }
                 }
             ],
-            data6: [],
-            modal1: false,
+            data: [], 
             formValidate: {
                     depart_id: '',
                     depart_name: '',
                     depart_master: '',
                     depart_desc: '',
-                },
+                    index:'',
+                    username: '',
+            },
+            modal: false,
         }
     },
     methods: {
-            show (index) {
-                this.modal1 = true
-                console.log(index, this.data6[index].depart_name)
-                this.formValidate = this.data6[index]
+            addOne (){
+                utility.initObject(this.formValidate)
+                this.modal = true
             },
+            // 现实弹窗对话
+            show (index) {
+                this.modal = true
+                this.formValidate = Object.assign({}, this.data[index])
+                this.formValidate.index = index
+            },
+            // 移除一条记录
             remove (index) {
-                let res = api.post('/api/departDelete', this.data6[index])
+                this.data[index].username = Cookies.get('username')
+                let res = api.post('/api/departDelete', this.data[index])
                 let that = this
                 res.then(function(response){
-                    that.data6.splice(index, 1)
+                    that.data.splice(index, 1)
                     that.$Message.success('删除成功')
                 })
             },
+            // 对话框确定按钮点击事件
             ok () {
-                // this.$Message.info('Clicked ok');
                 if(this.formValidate.depart_name === '' || this.formValidate.depart_master === '' ||this.formValidate.depart_desc=== '' ){
                     this.$Message.error('填写不完整')
                     return
                 }
+                this.formValidate.username = Cookies.get('username')
                 let res = api.post('/api/departUpsert', this.formValidate)
                 let that = this
                 res.then(function(response){
                     let {data, status} = response
-                    // console.log(data)
                     if(data.res){
                         that.$Message.success('添加成功')
-                        that.data6.push(that.formValidate)
-                        that.formValidate = {
-                            depart_id: '',
-                            depart_name: '',
-                            depart_master: '',
-                            depart_desc: '',
-                        }
+                        let t = Object.assign({}, that.formValidate)
+                        // console.log(t)
+                        that.data.push(t)
                     }else{
-                        that.formValidate = {
-                            depart_id: '',
-                            depart_name: '',
-                            depart_master: '',
-                            depart_desc: '',
-                        }
+                        utility.assginObject(that.data[that.formValidate.index], that.formValidate)
                         that.$Message.success('修改成功')
                     }
                 })
             },
             cancel(){
-                this.formValidate = {
-                    depart_id: '',
-                    depart_name: '',
-                    depart_master: '',
-                    depart_desc: '',
-                }
             }
         },
     created () {
-        
         let res = api.get('/api/depart')
         let that = this
         res.then(function(response){
             let {data, status} = response
-            that.data6 = data.res
+            that.data = data.res
         })
-        // this.$nextTick(updateOpened)
     },
 }
 </script>

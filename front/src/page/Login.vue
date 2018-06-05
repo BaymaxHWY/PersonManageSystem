@@ -26,7 +26,6 @@
                             <Button @click="handleSubmit()" type="primary" long>登录</Button>
                         </FormItem>
                     </Form>
-                    <p class="login-tip">输入任意用户名和密码即可</p>
                 </div>
             </Card>
         </div>
@@ -57,7 +56,6 @@ import api from '../api/index'
             this.$refs['form'].validate((valid) => {
                 let that = this
                     if (valid) {
-                        Cookies.set('username', this.form.userName)
                         let res = api.post('/api/login', {
                             username: this.form.userName,
                             password: this.form.password
@@ -65,6 +63,7 @@ import api from '../api/index'
                         res.then(function(response) {
                             let {data} = response
                             if(data.msg){
+                                Cookies.set('username', that.form.userName)
                                 that.$Message.success('登陆成功')
                                 that.$router.push({
                                     name: 'home'
@@ -72,12 +71,7 @@ import api from '../api/index'
                             }else{
                                 that.$Message.error('用户名或密码不正确填写')
                             }
-                        }).bind
-                        // let res = api.get('/api/depart')
-                        // res.then(function(response){
-                        //     let {data, status} = response
-                        //     console.log(data, status)
-                        // })
+                        })
                     } else {
                         this.$Message.error('用户名或密码不正确填写')
                     }
