@@ -26,7 +26,7 @@ node app.js
 ```
 
 #### **技术栈**
-vue2 +vue-router + webpack +ES6/7 + vux + koa2 + sequelize
+vue2 +vue-router + webpack +ES6/7 + iview + koa2 + sequelize
 
 #### **项目环境**
 > Node版本8.0及以上 
